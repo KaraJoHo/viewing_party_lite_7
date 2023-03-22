@@ -13,7 +13,18 @@ class UsersController <ApplicationController
   end
 
   def discover
+    @user = User.find(params[:id])
+
+    conn = Faraday.new(url: "https://api.themoviedb.org") do |faraday|
+      faraday.params[:api_key] = ENV["TMDB_API_KEY"]
+    end
+    response = conn.get("/3/movie/top_rated?")
     
+    data = JSON.parse(response.body, symbolize_names: true)
+
+    top_20 = data[:results][0..19]
+
+    @top_20_names = top_20.map {|movie| movie[:original_title]}
   end
 
   private
